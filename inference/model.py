@@ -208,6 +208,10 @@ class ParallelEmbedding(nn.Module):
         vocab_end_idx (int): One past the last vocabulary index owned by this rank.
     """
     def __init__(self, vocab_size: int, dim: int):
+        """Partitions vocabulary across ranks and allocates local embedding table.
+
+        See class docstring for full parameter and attribute documentation.
+        """
         super().__init__()
         self.vocab_size = vocab_size
         self.dim = dim
@@ -346,6 +350,10 @@ class Linear(nn.Module):
     scale_fmt: Optional[str] = None
 
     def __init__(self, in_features: int, out_features: int, bias: bool = False, dtype = None):
+        """Allocates weight, optional FP8 scale, and optional bias parameters.
+
+        See class docstring for full parameter and attribute documentation.
+        """
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
@@ -399,6 +407,10 @@ class ColumnParallelLinear(Linear):
             (out_features // world_size).
     """
     def __init__(self, in_features: int, out_features: int, bias: bool = False, dtype = None):
+        """Validates divisibility and allocates column-partitioned weight.
+
+        See class docstring for full parameter and attribute documentation.
+        """
         assert out_features % world_size == 0, f"Output features must be divisible by world size (world_size={world_size})"
         self.part_out_features = out_features // world_size
         super().__init__(in_features, self.part_out_features, bias, dtype)
@@ -442,6 +454,10 @@ class RowParallelLinear(Linear):
             (in_features // world_size).
     """
     def __init__(self, in_features: int, out_features: int, bias: bool = False, dtype = None):
+        """Validates divisibility and allocates row-partitioned weight.
+
+        See class docstring for full parameter and attribute documentation.
+        """
         assert in_features % world_size == 0, f"Input features must be divisible by world size (world_size={world_size})"
         self.part_in_features = in_features // world_size
         super().__init__(self.part_in_features, out_features, bias, dtype)
@@ -495,6 +511,10 @@ class RMSNorm(nn.Module):
         for Transformer architectures. Reference: Zhang & Sennrich, 2019.
     """
     def __init__(self, dim: int, eps: float = 1e-6):
+        """Initializes normalization dimension, epsilon, and learnable scale.
+
+        See class docstring for full parameter and attribute documentation.
+        """
         super().__init__()
         self.dim = dim
         self.eps = eps
@@ -710,6 +730,12 @@ class MLA(nn.Module):
                 pe_cache ``(max_batch_size, max_seq_len, qk_rope_head_dim)``
     """
     def __init__(self, args: ModelArgs):
+        """Constructs MLA projections, KV caches, and RoPE frequencies.
+
+        Builds the query, KV, and output projection layers, allocates KV caches
+        based on ``attn_impl`` mode (absorb vs. naive), and precomputes RoPE
+        frequencies. See class docstring for full architecture documentation.
+        """
         super().__init__()
         self.dim = args.dim
         self.n_heads = args.n_heads

@@ -333,9 +333,14 @@ def main(
             elif rank == 0:
                 prompt = input(">>> ")
                 objects = [prompt]
+                # [Distributed] broadcast_object_list from rank 0 → all ranks — rank 0 sends
+                # the user prompt string so every rank generates from identical input.
+                # Participating ranks: all ranks in default process group. Data: list[str].
                 dist.broadcast_object_list(objects, 0)
             else:
                 objects = [None]
+                # [Distributed] broadcast_object_list receive on non-rank-0 — receives the
+                # prompt string broadcast by rank 0. objects[0] is overwritten in-place.
                 dist.broadcast_object_list(objects, 0)
                 prompt = objects[0]
             if prompt == "/exit":
@@ -362,6 +367,8 @@ def main(
             print()
 
     if world_size > 1:
+        # [Distributed] Cleanup — destroys the NCCL process group to release GPU
+        # communication resources. All ranks must call this before process exit.
         dist.destroy_process_group()
 
 
