@@ -1,0 +1,5 @@
+site_name: 'blitzy-DeepSeek-V3'
+nav:
+  - Home: index.md
+plugins:
+  - techdocs-core
