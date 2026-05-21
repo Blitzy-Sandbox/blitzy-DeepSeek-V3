@@ -40,6 +40,7 @@
 7. [License](#7-license)
 8. [Citation](#8-citation)
 9. [Contact](#9-contact)
+10. [Code Documentation](#10-code-documentation)
 
 
 ## 1. Introduction
@@ -359,3 +360,25 @@ This code repository is licensed under [the MIT License](LICENSE-CODE). The use 
 
 ## 9. Contact
 If you have any questions, please raise an issue or contact us at [service@deepseek.com](service@deepseek.com).
+
+## 10. Code Documentation
+
+This section provides a brief overview linking to the Developer's Log documentation embedded throughout the codebase. All Python modules under `inference/` contain comprehensive Google-style docstrings with tensor shape annotations, distributed communication documentation, and inline "why" rationale comments explaining non-trivial implementation decisions.
+
+### Architecture Overview
+For a high-level understanding of the DeepSeek-V3 inference pipeline, module dependency graph, key architectural decisions (MLA, DeepSeekMoE, MTP, FP8 quantization), and a glossary of DeepSeek-V3-specific terms, see:
+- [Architecture Overview](inference/ARCHITECTURE.md)
+
+### Configuration Reference
+For comprehensive documentation of all configuration parameters across all model variants (16B, 236B, 671B, v3.1), including types, valid ranges, purpose, and relationships to architecture dimensions, see:
+- [Configuration Reference](inference/configs/CONFIG_REFERENCE.md)
+
+### Per-Module Documentation
+Each Python module under `inference/` contains enriched documentation:
+- **`inference/model.py`** — Transformer architecture core: ModelArgs, MLA, MoE, Gate, parallel linear layers, RoPE, and all distributed operations
+- **`inference/generate.py`** — Token generation pipeline: sampling strategy, autoregressive generation, distributed initialization
+- **`inference/kernel.py`** — Triton FP8 kernels: activation quantization, weight dequantization, FP8 GEMM with autotuning
+- **`inference/convert.py`** — HuggingFace-to-model-parallel checkpoint conversion with expert sharding
+- **`inference/fp8_cast_bf16.py`** — FP8-to-BF16 weight conversion with block-wise dequantization
+
+All documentation cross-references the DeepSeek-V3 technical report ([arXiv:2412.19437](https://arxiv.org/abs/2412.19437)).
